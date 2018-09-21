@@ -22,6 +22,10 @@ except ValueError as e:
     sys.exit(1)
 
 
+def configure_iptables():
+    os.system("iptables -t raw -A PREROUTING -p tcp -j NFQUEUE --queue-num 1")
+
+
 def callback(payload):
     # pkt.show() # debug statement
     data = payload.get_payload()
@@ -37,6 +41,7 @@ def callback(payload):
     payload.accept()
     send(pkt)
 
+configure_iptables()
 
 sys.stdout.write('Listening on NFQUEUE queue-num %s... \n' % str(QUEUE_NUM))
 nfqueue = NetfilterQueue()
