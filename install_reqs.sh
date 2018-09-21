@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-sudo apt-get install libpcap-dev libnetfilter-queue-dev
+sudo apt-get install python-pip libpcap-dev libnetfilter-queue-dev
