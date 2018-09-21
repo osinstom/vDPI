@@ -35,11 +35,9 @@ def callback(payload):
             print "ENCRYPTED PACKET!"
         else:
             print "HTTP"
-    pkt.show2()
-    payload.set_payload(str(pkt))
-    print 'Sending packet... \n'
+    print 'Sending packet its own way... \n'
     payload.accept()
-    send(pkt)
+
 
 configure_iptables()
 
@@ -51,6 +49,9 @@ try:
     nfqueue.run_socket(s)
 except KeyboardInterrupt:
     sys.stdout.write('Exiting \n')
-
-s.close()
-nfqueue.unbind()
+    s.close()
+    nfqueue.unbind()
+    print("Flushing iptables.")
+    # This flushes everything, you might wanna be careful
+    os.system('iptables -F')
+    os.system('iptables -X')
