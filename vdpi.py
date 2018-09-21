@@ -2,56 +2,32 @@
 
 from scapy.all import *
 from scapy.layers.inet import TCP, IP
+from scapy_http import http
 from scapy_ssl_tls.ssl_tls import TLS, SSL
 from scapy.layers.ssl_tls import TLSRecord, SSLv2Record
-import subprocess
-from netfilterqueue import NetfilterQueue
-import socket
-from pprint import pprint
-import json
-import os
 import sys
 import logging
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
-try:
-    QUEUE_NUM = int(os.getenv('QUEUE_NUM', 1))
-except ValueError as e:
-    sys.stderr.write('Error: env QUEUE_NUM must be integer\n')
-    sys.exit(1)
 
-
-def configure_iptables():
-    os.system("iptables -t raw -A PREROUTING -p tcp -j NFQUEUE --queue-num 1")
-
-
-def callback(payload):
-    # pkt.show() # debug statement
-    data = payload.get_payload()
-    pkt = IP(data)
+def callback(pkt):
+    pkt.show() # debug statement
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
         if pkt.haslayer(TLSRecord) or pkt.haslayer(SSLv2Record):
             print "ENCRYPTED PACKET!"
-        else:
+        elif pkt.haslayer('HTTP'):
             print "HTTP"
-    print 'Sending packet its own way... \n'
-    payload.accept()
+        else:
+            print "Some other packet.."
 
 
-configure_iptables()
+def main(intf):
+    sniff(iface=intf, prn=callback, filter="tcp", store=0)
 
-sys.stdout.write('Listening on NFQUEUE queue-num %s... \n' % str(QUEUE_NUM))
-nfqueue = NetfilterQueue()
-nfqueue.bind(QUEUE_NUM, callback)
-s = socket.fromfd(nfqueue.get_fd(), socket.AF_UNIX, socket.SOCK_STREAM)
-try:
-    nfqueue.run_socket(s)
-except KeyboardInterrupt:
-    sys.stdout.write('Exiting \n')
-    s.close()
-    nfqueue.unbind()
-    print("Flushing iptables.")
-    # This flushes everything, you might wanna be careful
-    os.system('iptables -F')
-    os.system('iptables -X')
+
+if __name__ == "__main__":
+    if sys.argv[1]:
+        main(sys.argv[1])
+    else:
+        print 'Interface name required!'
