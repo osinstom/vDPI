@@ -9,10 +9,9 @@ IFACE=$(ifconfig -a | awk '/ens/ {print $1}' | sed -n 2p)
 echo -e "auto ${IFACE}\niface ${IFACE} inet dhcp" | sudo tee /etc/network/interfaces.d/${IFACE}.cfg > /dev/null
 sudo ifup ${IFACE}
 
-git clone http://10.254.188.33/diaas/vDPI.git
-cd vDPI
-
-sudo pip install -r requirements.txt
+sudo pip install scapy==2.3.2
+sudo pip install scapy-ssl_tls
+sudo pip install scapy_http
 
 sudo ovs-vsctl add-br br0
 sudo ovs-vsctl add-port br0 ${IFACE}
