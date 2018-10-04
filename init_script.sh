@@ -6,9 +6,6 @@ sudo apt-get -qq -y install python-pip git openvswitch-switch
 
 IFACE=$(ifconfig -a | awk '/ens/ {print $1}' | sed -n 2p)
 
-echo -e "auto ${IFACE}\niface ${IFACE} inet dhcp" | sudo tee /etc/network/interfaces.d/${IFACE}.cfg > /dev/null
-sudo ifup ${IFACE}
-
 sudo pip install scapy==2.3.2
 sudo pip install scapy-ssl_tls
 sudo pip install scapy_http
