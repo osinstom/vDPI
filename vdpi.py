@@ -3,8 +3,7 @@
 from scapy.all import *
 from scapy.layers.inet import TCP, IP
 from scapy_http import http
-from scapy_ssl_tls.ssl_tls import TLS, SSL
-from scapy.layers.ssl_tls import TLSRecord, SSLv2Record
+from scapy_ssl_tls.ssl_tls import TLS, SSL, TLSRecord, SSLv2Record
 import sys
 import logging
 
