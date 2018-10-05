@@ -37,6 +37,10 @@ def debug_flow(pkt):
 def callback(pkt):
     debug_packet(pkt)
 
+    if is_new_flow(pkt):
+        debug_flow(pkt)
+        add_flow(pkt)
+
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
         if is_new_flow(pkt):
             debug_flow(pkt)
