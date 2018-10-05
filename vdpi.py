@@ -9,6 +9,7 @@ from flow import Flow
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
 flows = []
+pkts = 0
 
 
 def is_new_flow(pkt):
@@ -26,7 +27,8 @@ def add_flow(pkt):
 
 def debug_packet(pkt):
     print "Packet received: %s, %s -> %s" % (pkt[IP].proto, pkt[IP].src, pkt[IP].dst)
-
+    global pkts
+    pkts += 1
 
 def debug_flow(pkt):
     print "New flow received: %s, %s -> %s" % (pkt[IP].proto, pkt[IP].src, pkt[IP].dst)
@@ -34,6 +36,7 @@ def debug_flow(pkt):
 
 def callback(pkt):
     debug_packet(pkt)
+
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
         if is_new_flow(pkt):
             debug_flow(pkt)
@@ -49,7 +52,9 @@ def callback(pkt):
 
 
 def print_summary():
+    global pkts
     print "SUMMARY"
+    print "Number of packets received: %s, Number of unique flows: %s" % (pkts, len(flows))
 
 
 def main(intf):
