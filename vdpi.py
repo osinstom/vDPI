@@ -4,7 +4,7 @@ from scapy_http import http
 import sys
 import logging
 
-from flow import Flow
+from flow import Flow, L4Flow
 
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 
@@ -13,6 +13,13 @@ pkts = 0
 
 
 def is_new_flow(pkt):
+    flow = Flow(src_ip=pkt[IP].src,
+                dst_ip=pkt[IP].dst,
+                src_port=pkt[TCP].sport,
+                dst_port=pkt[TCP].dport,
+                proto=pkt[IP].proto)
+    if flow in flows:
+        return False
     return True
 
 
@@ -22,6 +29,13 @@ def add_flow(pkt):
                 src_port=pkt[TCP].sport,
                 dst_port=pkt[TCP].dport,
                 proto=pkt[IP].proto)
+    flows.append(flow)
+
+
+def add_l4_flow(pkt):
+    flow = L4Flow(src_ip=pkt[IP].src,
+                  dst_ip=pkt[IP].dst,
+                  proto=pkt[IP].proto)
     flows.append(flow)
 
 
@@ -44,7 +58,7 @@ def callback(pkt):
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
         if is_new_flow(pkt):
             debug_flow(pkt)
-            add_flow(pkt)
+            add_l4_flow(pkt)
 
         if pkt.haslayer(TLSRecord) or pkt.haslayer(SSLv2Record):
             print "ENCRYPTED PACKET!"
