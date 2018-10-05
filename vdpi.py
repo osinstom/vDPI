@@ -25,7 +25,7 @@ def add_flow(pkt):
 
 
 def debug_packet(pkt):
-    print "Packet received: %s, %s -> %s" % (pkt.get_field('proto').i2s[pkt.proto], pkt[IP].src, pkt[IP].dst)
+    print "Packet received: %s, %s -> %s" % (pkt[IP].proto, pkt[IP].src, pkt[IP].dst)
 
 
 def debug_flow(pkt):
@@ -45,6 +45,7 @@ def callback(pkt):
             print "HTTP"
         else:
             print "Some other packet.."
+    print_summary()
 
 
 def print_summary():
