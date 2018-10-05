@@ -12,7 +12,7 @@ sudo pip install scapy_http
 
 sudo ovs-vsctl add-br br0
 sudo ovs-vsctl add-port br0 ${IFACE}
-sudo ovs-ofctl add-flow br0 in_port=1,action=in_port
+sudo ovs-ofctl add-flow br0 in_port=1,actions=mod_dl_src=$1,mod_dl_dst=$2,in_port
 
 sudo python vdpi.py ${IFACE}
 
