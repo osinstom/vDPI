@@ -26,8 +26,6 @@ def is_new_flow(pkt):
 def add_flow(pkt):
     flow = Flow(src_ip=pkt[IP].src,
                 dst_ip=pkt[IP].dst,
-                src_port=pkt[TCP].sport,
-                dst_port=pkt[TCP].dport,
                 proto=pkt[IP].proto)
     flows.append(flow)
 
@@ -35,6 +33,8 @@ def add_flow(pkt):
 def add_l4_flow(pkt):
     flow = L4Flow(src_ip=pkt[IP].src,
                   dst_ip=pkt[IP].dst,
+                  src_port=pkt[TCP].sport,
+                  dst_port=pkt[TCP].dport,
                   proto=pkt[IP].proto)
     flows.append(flow)
 
