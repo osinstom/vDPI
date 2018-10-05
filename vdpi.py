@@ -15,8 +15,6 @@ pkts = 0
 def is_new_flow(pkt):
     flow = Flow(src_ip=pkt[IP].src,
                 dst_ip=pkt[IP].dst,
-                src_port=pkt[TCP].sport,
-                dst_port=pkt[TCP].dport,
                 proto=pkt[IP].proto)
     if flow in flows:
         return False
