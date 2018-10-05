@@ -17,18 +17,27 @@ def is_new_flow(pkt):
 
 
 def add_flow(pkt):
-    flow = Flow()
+    flow = Flow(src_ip=pkt[IP].src,
+                dst_ip=pkt[IP].dst,
+                src_port=pkt[TCP].sport,
+                dst_port=pkt[TCP].dport,
+                proto=pkt[IP].proto)
     flows.append(flow)
 
 
 def debug_packet(pkt):
-    print "Packet received: %s, %s -> %s" % (pkt[IP].proto, pkt[IP].src, pkt[IP].dst)
+    print "Packet received: %s, %s -> %s" % (pkt.get_field('proto').i2s[pkt.proto], pkt[IP].src, pkt[IP].dst)
+
+
+def debug_flow(pkt):
+    print "New flow received: %s, %s -> %s" % (pkt[IP].proto, pkt[IP].src, pkt[IP].dst)
 
 
 def callback(pkt):
     debug_packet(pkt)
     if pkt.haslayer(TCP) and pkt.haslayer(Raw):
         if is_new_flow(pkt):
+            debug_flow(pkt)
             add_flow(pkt)
 
         if pkt.haslayer(TLSRecord) or pkt.haslayer(SSLv2Record):
