@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+echo $2 > /opt/config/dst_mac
+
 sudo apt-get update
 
 sudo apt-get -qq -y install python-pip git openvswitch-switch
