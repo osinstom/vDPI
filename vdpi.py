@@ -8,6 +8,9 @@ from scapy_http import http
 from flow import Flow, L4Flow
 from dppclient.client import Client
 from influxdb import InfluxDBClient
+import netifaces as ni
+
+VDPI_PROGRAM = "vdpi.p4"
 
 numberOfHTTPPackets = 0
 numberOfEncryptedHTTPPackets = 0
@@ -36,6 +39,8 @@ def get_value_from_file(filename):
 network_id = get_value_from_file('/opt/config/network_id')
 project_id = get_value_from_file('/opt/config/project_id')
 srv_mac = get_value_from_file('/opt/config/server_dst_mac')
+client_ip = get_value_from_file('/opt/config/client_ip')
+server_ip = get_value_from_file('/opt/config/server_ip')
 
 def is_new_flow(pkt):
     flow = L4Flow(src_ip=pkt[IP].src,
@@ -164,21 +169,24 @@ def print_summary():
     print "Number of packets received: %s, Number of unique flows: %s" % (pkts, len(flows))
 
 
-def install_dpmodule():
+def _get_ipaddr_of_intf(intf):
+    return ni.ifaddresses(intf)[ni.AF_INET][0]['addr']
+
+def install_dpmodule(intf):
     status, data = client.modules.create(project_id=project_id,
                                          network_id=network_id,
                                          name="PROGRAM1",
                                          description="Test",
-                                         program="vdpi.p4")
+                                         program=VDPI_PROGRAM)
     print data
     global dpmodule_id
     dpmodule_id = data['module']['id']
     print "Data plane module (vdpi.p4) for vDPI has been installed."
     resp = client.modules.attach(id=dpmodule_id,
-                          chain_with="11.0.0.19",
-                          protocol="tcp",
-                          dst_ip="11.0.0.13/32",
-                          src_ip="11.0.0.7/32"
+                          chain_with=_get_ipaddr_of_intf(intf), ## attach with vDPI itself
+                          protocol="tcp", ### this vDPI is dedicated to HTTP traffic
+                          dst_ip="{}/32".format(server_ip),
+                          src_ip="{}/32".format(client_ip)
                           )
     if resp.status_code == 201:
         print "Data plane module has been attached."
@@ -192,7 +200,7 @@ def cleanup():
     print "Data plane module (vdpi.p4) for vDPI has been removed."
 
 def main(intf):
-    install_dpmodule()
+    install_dpmodule(intf)
     try:
         sniff(iface=intf, prn=callback, filter="", store=0)
     except KeyboardInterrupt:

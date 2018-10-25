@@ -2,3 +2,4 @@ scapy==2.3.2
 scapy-ssl_tls
 scapy_http
 influxdb
+netifaces
