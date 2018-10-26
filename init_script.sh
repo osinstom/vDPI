@@ -14,6 +14,7 @@ sudo pip install scapy_http
 sudo pip install netifaces
 sudo pip install influxdb
 sudo pip install requests
+sudo pip install warlock
 
 sudo ovs-vsctl add-br br0
 sudo ovs-vsctl add-port br0 ${IFACE}
