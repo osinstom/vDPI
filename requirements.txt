@@ -3,3 +3,4 @@ scapy-ssl_tls
 scapy_http
 influxdb
 netifaces
+requests
