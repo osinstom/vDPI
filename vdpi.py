@@ -27,9 +27,7 @@ pkts = 0
 dpmodule_id = ''
 client = Client('10.254.184.104')
 
-influx_client = InfluxDBClient('10.254.188.122', 8086, 'admin', '!@webrtc34', 'p4vdpi')
-
-
+influx_client = InfluxDBClient('212.160.88.87', 8086, 'admin', '!@webrtc34', 'p4vdpi')
 
 def get_value_from_file(filename):
     file = open(filename, "r")
