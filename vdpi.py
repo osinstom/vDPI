@@ -25,9 +25,17 @@ logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.DEBUG)
 flows = []
 pkts = 0
 dpmodule_id = ''
-client = Client('10.254.184.104')
+client = None
 
-influx_client = InfluxDBClient('212.160.88.87', 8086, 'admin', '!@webrtc34', 'p4vdpi')
+influx_client = None
+
+
+def init_clients(os_addr, influx_addr):
+    global client
+    client = Client(os_addr)
+    global influx_client
+    influx_client = InfluxDBClient(influx_addr, 8086, 'admin', '!@webrtc34', 'p4vdpi')
+
 
 def get_value_from_file(filename):
     file = open(filename, "r")
@@ -197,7 +205,8 @@ def cleanup():
     client.modules.delete(id=dpmodule_id)
     print "Data plane module (vdpi.p4) for vDPI has been removed."
 
-def main(intf):
+def main(intf, os_addr, influx_addr):
+    init_clients(os_addr, influx_addr)
     install_dpmodule(intf)
     try:
         sniff(iface=intf, prn=callback, filter="", store=0)
@@ -208,7 +217,10 @@ def main(intf):
 
 
 if __name__ == "__main__":
-    if sys.argv[1]:
-        main(sys.argv[1])
-    else:
+    if not sys.argv[1]:
         print 'Interface name required!'
+    if not sys.argv[2]:
+        print 'OpenStack IP address required'
+    if not sys.argv[3]:
+        print 'InfluxDB IP address required'
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
